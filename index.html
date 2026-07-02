@@ -6,18 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans:wght@400;500&display=swap" rel="stylesheet">
   <meta name="description" content="">
   <link rel="stylesheet" href="./index.css">
 </head>
 <body>
 
-  <!-- Edit banner -->
+  <!-- Bandeau mode édition -->
   <div class="edit-banner" id="editBanner">
     <p><img src="./assets/icons/edit.svg" alt="édition"> Mode édition</p>
   </div>
 
-  <!-- Loader -->
+  <!-- Écran de chargement -->
   <div class="loader">
     <div class="loader__content">
       <h1 class="loader__title">Sophie Bluel</h1>
@@ -65,14 +65,14 @@
     <section id="contact">
       <h2>Contact</h2>
       <p>Vous avez un projet ? Discutons-en !</p>
-      <form action="#" method="post">
+      <form id="contactForm">
         <label for="name">Nom</label>
         <input type="text" name="name" id="name">
         <label for="email">Email</label>
         <input type="email" name="email" id="email">
         <label for="message">Message</label>
         <textarea name="message" id="message" cols="30" rows="10"></textarea>
-        <input type="submit" value="Envoyer">
+        <input type="submit" value="Envoyer" id="contactSubmit">
       </form>
     </section>
   </main>
@@ -80,20 +80,23 @@
   <footer>
     <nav>
       <ul>
-        <li>Mentions Légales</li>
+        <li><a href="#">Mentions Légales</a></li>
       </ul>
     </nav>
   </footer>
 
-  <!-- Modal -->
+  <!-- Retour en haut de page -->
+  <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
+
+  <!-- Modale -->
   <div class="modal" id="modal">
     <div class="modal__overlay"></div>
     <div class="modal__container">
 
-      <!-- Close button -->
+      <!-- Bouton de fermeture -->
       <button class="modal__close" id="modalClose">✕</button>
 
-      <!-- Vue 1 — Gallery -->
+      <!-- Vue 1 — Galerie -->
       <div class="modal__gallery" id="modalGallery">
         <h3>Galerie photo</h3>
         <p class="modal__error" id="modalError"></p>
@@ -104,15 +107,15 @@
       </div>
 
  <div class="modal__form" id="modalForm">
-  <button class="modal__back" id="modalBack">←</button>
+  <button class="modal__back" id="modalBack"><img src="./assets/icons/arrow-left.svg" alt="retour"></button>
   <h3>Ajout photo</h3>
 
   <form id="addWorkForm">
-    <!-- Zone upload -->
+    <!-- Zone de téléversement -->
     <div class="modal__upload" id="modalUpload">
   <input type="file" id="fileInput" accept="image/*">
   <img src="./assets/icons/pictures.svg" alt="image">
-  <label for="fileInput" class="upload__btn">+ Ajouter une photo</label>
+  <label for="fileInput" class="upload__btn">+ Ajouter photo</label>
   <small>jpg, png : 4mo max</small>
 </div>
 
@@ -129,6 +132,9 @@
     <!-- Message d'erreur -->
     <p class="form-error" id="formError"></p>
 
+    <!-- Message de succès -->
+    <p class="modal__success" id="formSuccess"></p>
+
     <!-- Séparateur -->
     <hr class="modal__separator">
 
@@ -139,6 +145,7 @@
 
       <!-- Confirmation de suppression -->
       <div class="modal__confirm" id="modalConfirm">
+        <img class="modal__confirm-image" id="confirmImage" alt="">
         <p>Supprimer ce projet ?</p>
         <p class="modal__confirm-title" id="confirmTitle"></p>
         <div class="modal__confirm-actions">

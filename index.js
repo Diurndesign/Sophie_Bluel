@@ -141,6 +141,7 @@ const modalUpload = document.getElementById("modalUpload")
 const uploadPreview = modalUpload.querySelector("img")
 const formError = document.getElementById("formError")
 const modalSuccess = document.getElementById("modalSuccess")
+const formSuccess = document.getElementById("formSuccess")
 const modalError = document.getElementById("modalError")
 
 // Affichage d'un message d'erreur persistant dans la galerie de la modale
@@ -149,6 +150,7 @@ function showModalError(message) {
   modalError.style.display = "block"
 }
 const modalConfirm = document.getElementById("modalConfirm")
+const confirmImage = document.getElementById("confirmImage")
 const confirmTitle = document.getElementById("confirmTitle")
 const confirmCancel = document.getElementById("confirmCancel")
 const confirmDelete = document.getElementById("confirmDelete")
@@ -157,6 +159,8 @@ let workToDelete = null
 // Affichage de la confirmation de suppression pour un projet donné
 function askDeleteConfirmation(work) {
   workToDelete = work
+  confirmImage.src = work.imageUrl
+  confirmImage.alt = work.title
   confirmTitle.textContent = work.title
   modalConfirm.classList.add("active")
 }
@@ -186,7 +190,7 @@ confirmDelete.addEventListener("click", () => {
 
     // Rechargement de la grille et de la galerie principale
     loadModalWorks()
-    showSuccess("Photo supprimée avec succès")
+    showSuccess(modalSuccess, "Photo supprimée avec succès")
     fetch("http://localhost:5678/api/works")
       .then(r => r.json())
       .then(works => displayWorks(works))
@@ -230,7 +234,6 @@ modalAddBtn.addEventListener("click", () => {
   modalForm.style.display = "block"
   loadCategories()
   resetAddWorkForm()
-  modalSuccess.style.display = "none"
 })
 
 // Retour vers la galerie
@@ -245,11 +248,11 @@ function showGallery() {
   modalForm.style.display = "none"
 }
 
-// Affichage temporaire d'un message de confirmation dans la galerie
-function showSuccess(message) {
-  modalSuccess.textContent = message
-  modalSuccess.style.display = "block"
-  setTimeout(() => modalSuccess.style.display = "none", 3000)
+// Affichage temporaire d'un message de confirmation
+function showSuccess(element, message) {
+  element.textContent = message
+  element.style.display = "block"
+  setTimeout(() => element.style.display = "none", 3000)
 }
 
 // Création d'une figure pour la grille de la modale (avec bouton de suppression)
@@ -347,19 +350,16 @@ document.getElementById("addWorkForm").addEventListener("submit", (event) => {
     return response.json()
   })
   .then(newWork => {
-    // Réinitialisation du formulaire et de la preview
-    resetAddWorkForm()
-
-    // Retour à la galerie
-    modalForm.style.display = "none"
-    modalGallery.style.display = "block"
-
     // Ajout du nouveau projet dans la grille de la modale et dans la galerie principale, sans recharger la page
     document.getElementById("modalGrid").appendChild(createModalFigure(newWork))
     document.querySelector(".gallery").appendChild(createGalleryFigure(newWork))
 
+    // Réinitialisation du formulaire et de la preview : on reste sur la vue formulaire
+    // pour permettre d'ajouter une nouvelle photo directement, sans re-cliquer sur "Ajouter une photo"
+    resetAddWorkForm()
+
     // Confirmation visuelle de l'ajout
-    showSuccess("Photo ajoutée avec succès")
+    showSuccess(formSuccess, "Photo ajoutée avec succès")
   })
   .catch(error => {
     console.error("Erreur: ", error)
@@ -450,5 +450,28 @@ function resetAddWorkForm() {
   uploadPreview.src = "./assets/icons/pictures.svg"
   uploadPreview.style.opacity = ""
   formError.style.display = "none"
+  formSuccess.style.display = "none"
   checkForm()
 }
+
+// Formulaire de contact : pas de backend dédié, simple confirmation visuelle à l'envoi
+const contactForm = document.getElementById("contactForm")
+const contactSubmit = document.getElementById("contactSubmit")
+
+contactForm.addEventListener("submit", (event) => {
+  event.preventDefault()
+
+  contactSubmit.style.backgroundColor = "#0E2F28"
+  setTimeout(() => contactSubmit.style.backgroundColor = "", 1000)
+})
+
+// Bouton retour en haut de page, visible après un certain défilement
+const backToTop = document.getElementById("backToTop")
+
+window.addEventListener("scroll", () => {
+  backToTop.classList.toggle("visible", window.scrollY > 400)
+})
+
+backToTop.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" })
+})
