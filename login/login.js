@@ -1,7 +1,21 @@
 // Redirection automatique si déjà connecté
 const token = localStorage.getItem("token")
+
+// Intercepter les clics sur les liens pour préserver l'ancre lors de la redirection
+document.addEventListener("click", (e) => {
+  const link = e.target.closest("a[href*='../index/index.html']")
+  if (link && token) {
+    const hash = new URL(link.href, window.location.href).hash
+    if (hash) {
+      sessionStorage.setItem("targetHash", hash)
+    }
+  }
+})
+
 if (token) {
-  window.location.href = "../index.html"
+  const targetHash = sessionStorage.getItem("targetHash") || ""
+  sessionStorage.removeItem("targetHash")
+  window.location.href = "../index/index.html" + targetHash
 }
 
 // Formulaire de connexion
@@ -28,7 +42,7 @@ form.addEventListener("submit", (event) => {
     if (data.token) {
       // Connexion OK → sauvegarde du token et redirection
       localStorage.setItem("token", data.token)
-      window.location.href = "../index.html"
+      window.location.href = "../index/index.html"
     } else {
       // Connexion KO → message d'erreur
       errorEl.textContent = "Erreur dans l'identifiant ou le mot de passe"
