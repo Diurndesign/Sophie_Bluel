@@ -40,7 +40,7 @@ Promise.all([
   console.error('Erreur: ', error)
   // Back inaccessible (perte réseau, serveur down...) → message visible
   const galleryError = document.getElementById("galleryError")
-  galleryError.textContent = "Impossible de charger les projets. Vérifiez votre connexion et réessayez."
+  galleryError.textContent = "Impossible de charger les projets. Réessayez plus tard."
   galleryError.style.display = "block"
   hideLoader()
 })
@@ -201,7 +201,7 @@ confirmDelete.addEventListener("click", () => {
     showModalError(
       error.message === "La suppression a échoué."
         ? error.message
-        : "Connexion au serveur impossible. Vérifiez votre connexion et réessayez."
+        : "Connexion au serveur impossible. Réessayez plus tard"
     )
   })
 })
@@ -287,7 +287,7 @@ function loadModalWorks() {
     })
     .catch(error => {
       console.error("Erreur: ", error)
-      showModalError("Impossible de charger les projets. Vérifiez votre connexion et réessayez.")
+      showModalError("Impossible de charger les projets. Réessayez plus tard.")
     })
 }
 
@@ -310,7 +310,7 @@ function loadCategories() {
     })
     .catch(error => {
       console.error("Erreur: ", error)
-      formError.textContent = "Impossible de charger les catégories. Vérifiez votre connexion et réessayez."
+      formError.textContent = "Impossible de charger les catégories. Réessayez plus tard."
       formError.style.display = "block"
     })
 }
@@ -365,7 +365,7 @@ document.getElementById("addWorkForm").addEventListener("submit", (event) => {
     console.error("Erreur: ", error)
     formError.textContent = error.message === "L'ajout du projet a échoué."
       ? error.message
-      : "Connexion au serveur impossible. Vérifiez votre connexion et réessayez."
+      : "Connexion au serveur impossible. Réessayez plus tard."
     formError.style.display = "block"
   })
 })
