@@ -24,26 +24,38 @@ function hideLoader() {
   })
 }
 
-// Récupération des projets et catégories en parallèle
-Promise.all([
-  fetch("http://localhost:5678/api/works").then(response => response.json()),
-  fetch("http://localhost:5678/api/categories").then(response => response.json())
-])
-.then(([works, categories]) => {
-  displayWorks(works)
-  if (!token) {
-    displayFilters(works, categories)
-  }
-  hideLoader()
-})
-.catch(error => {
-  console.error('Erreur: ', error)
-  // Back inaccessible (perte réseau, serveur down...) → message visible
-  const galleryError = document.getElementById("galleryError")
-  galleryError.textContent = "Impossible de charger les projets. Réessayez plus tard."
-  galleryError.style.display = "block"
-  hideLoader()
-})
+// Démo en ligne (lecture seule) : données servies localement, sans back-end.
+// La version complète dialogue avec l'API OpenClassrooms (voir login/ et la
+// suite de ce fichier). Ici, seules la galerie publique et les filtres sont actifs.
+const works = [
+  { id: 1, title: "Abajour Tahina", imageUrl: "/assets/images/abajour-tahina.png", categoryId: 1 },
+  { id: 2, title: "Appartement Paris V", imageUrl: "/assets/images/appartement-paris-v.png", categoryId: 2 },
+  { id: 3, title: "Restaurant Sushisen - Londres", imageUrl: "/assets/images/restaurant-sushisen-londres.png", categoryId: 3 },
+  { id: 4, title: "La balisière", imageUrl: "/assets/images/la-balisiere.png", categoryId: 3 },
+  { id: 5, title: "Structures Thermopolis", imageUrl: "/assets/images/structures-thermopolis.png", categoryId: 1 },
+  { id: 6, title: "Appartement Paris X", imageUrl: "/assets/images/appartement-paris-x.png", categoryId: 2 },
+  { id: 7, title: "Hôtel First Arte - New Delhi", imageUrl: "/assets/images/hotel-first-arte-new-delhi.png", categoryId: 3 },
+  { id: 8, title: "Bar Lullaby - Paris", imageUrl: "/assets/images/bar-lullaby-paris.png", categoryId: 3 },
+  { id: 9, title: "Le Coteau Cassis", imageUrl: "/assets/images/le-coteau-cassis.png", categoryId: 3 },
+  { id: 10, title: "Villa Ferneze", imageUrl: "/assets/images/villa-ferneze.png", categoryId: 2 },
+  { id: 11, title: "Appartement Paris XVIII", imageUrl: "/assets/images/appartement-paris-xviii.png", categoryId: 2 },
+]
+const categories = [
+  { id: 1, name: "Objets" },
+  { id: 2, name: "Appartements" },
+  { id: 3, name: "Hôtels & restaurants" },
+]
+
+displayWorks(works)
+if (!token) {
+  displayFilters(works, categories)
+}
+hideLoader()
+
+// Démo en lecture seule : l'espace d'administration nécessite le back-end,
+// on masque donc le lien de connexion sur la version en ligne.
+const loginNavLink = document.getElementById("loginNav")
+if (loginNavLink) loginNavLink.style.display = "none"
 
 // Création d'une figure pour la galerie principale
 function createGalleryFigure(work) {
