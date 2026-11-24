@@ -25,6 +25,11 @@ function splitTitle(title) {
     : { name: title, place: "" }
 }
 
+// Évite qu'un mot court finisse seul sur une ligne (« Paris V », « Paris XVIII »)
+function keepShortWordsTogether(text) {
+  return String(text).replace(/ (\S{1,5})$/, "\u00a0$1")
+}
+
 function categoryName(id) {
   const category = state.categories.find(c => c.id === Number(id))
   return category ? category.name : ""
@@ -89,7 +94,7 @@ function createCard(work, index) {
   meta.className = "card__meta"
   const title = document.createElement("h3")
   title.className = "card__title"
-  title.textContent = name
+  title.textContent = keepShortWordsTogether(name)
   const num = document.createElement("span")
   num.className = "card__num"
   num.textContent = String(index + 1).padStart(2, "0")
@@ -160,7 +165,7 @@ function fillViewer() {
   $("#viewerImg").src = work.imageUrl
   $("#viewerImg").alt = work.title
   $("#viewerCat").textContent = categoryName(work.categoryId)
-  $("#viewerTitle").textContent = name
+  $("#viewerTitle").textContent = keepShortWordsTogether(name)
   $("#viewerPlace").textContent = place ? `Lieu : ${place}` : ""
   $("#viewerCount").textContent = `${String(viewerIndex + 1).padStart(2, "0")} / ${String(list.length).padStart(2, "0")}`
 }
