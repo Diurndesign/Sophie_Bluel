@@ -347,13 +347,9 @@ dialog[open] { animation: dlgIn .35s var(--ease); }
   .section-head { margin-bottom: 20px; }
   .section-head h2, .studio h2, .contact h2 { font-size: 36px; }
 
-  /* Filtres : une seule ligne qu'on fait défiler du doigt */
-  .filters {
-    flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
-    margin: 0 calc(-1 * var(--gutter)) 24px; padding: 0 var(--gutter);
-  }
-  .filters::-webkit-scrollbar { display: none; }
-  .filters button { flex-shrink: 0; white-space: nowrap; }
+  /* Filtres : toutes les catégories visibles, sur deux lignes si besoin */
+  .filters { gap: 6px; margin-bottom: 24px; }
+  .filters button { padding: 7px 12px; font-size: 13px; white-space: nowrap; }
 
   /* Galerie : deux colonnes compactes, sans décalage */
   .gallery { grid-template-columns: repeat(2, 1fr); gap: 28px 12px; }
