@@ -16,7 +16,7 @@
   --danger: #A63D2F;
   --ok: #4F6B45;
 
-  --serif: "Libre Caslon Display", Georgia, "Times New Roman", serif;
+  --serif: var(--sans); /* une seule famille : Public Sans */
   --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --page: min(1240px, 100% - 2 * var(--gutter));
@@ -38,7 +38,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 img { display: block; max-width: 100%; height: auto; }
-h1, h2, h3 { margin: 0; font-family: var(--serif); font-weight: 400; line-height: 1.08; letter-spacing: 0; text-wrap: balance; }
+h1, h2, h3 { margin: 0; font-family: var(--serif); font-weight: 500; line-height: 1.08; letter-spacing: -0.025em; text-wrap: balance; }
 p { margin: 0; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 a { color: inherit; }
@@ -111,7 +111,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .site-header.is-scrolled { border-bottom-color: var(--trait); }
 .is-admin .site-header { top: 52px; }
 .brand { display: flex; flex-direction: column; text-decoration: none; line-height: 1.1; }
-.brand__name { font-family: var(--serif); font-size: 24px; font-weight: 400; letter-spacing: -0.01em; }
+.brand__name { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
 .brand__tag { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gris); margin-top: 3px; }
 .site-nav ul { display: flex; align-items: center; gap: clamp(14px, 2.4vw, 32px); }
 .site-nav a { text-decoration: none; font-size: 15px; position: relative; }
@@ -248,7 +248,7 @@ main > section { width: var(--page); margin-inline: auto; }
   width: var(--page); margin: 0 auto; padding: 32px 0 40px;
   border-top: 1px solid var(--trait); font-size: 13px; color: var(--gris);
 }
-.site-footer__brand { font-family: var(--serif); font-size: 20px; color: var(--encre); }
+.site-footer__brand { font-size: 16px; font-weight: 600; color: var(--encre); }
 .site-footer a { color: var(--encre); }
 
 /* ---------- Dialogues ---------- */
