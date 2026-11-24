@@ -11,7 +11,7 @@
   <meta property="og:image" content="./assets/images/Malt-Juniper-New-York.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./index/index.css">
 </head>
 <body>
@@ -34,7 +34,7 @@
     <nav class="site-nav" aria-label="Navigation principale">
       <ul>
         <li><a href="#projets">Projets</a></li>
-        <li><a href="#approche">Approche</a></li>
+        <li><a href="#approche">Méthode</a></li>
         <li><a href="#atelier">L'atelier</a></li>
         <li><a href="#contact" class="site-nav__cta">Contact</a></li>
         <li id="loginNav"><a href="./login/login.html" class="site-nav__muted">Espace atelier</a></li>
@@ -46,13 +46,9 @@
     <!-- Ouverture -->
     <section class="hero" aria-labelledby="heroTitle">
       <div class="hero__text">
-        <p class="eyebrow">Paris · Projets en France et à l'étranger</p>
-        <h1 id="heroTitle">Des lieux qui se <em>ressentent</em> avant de se regarder.</h1>
-        <p class="hero__lead">Appartements, hôtels, restaurants et objets. Nous partons de votre histoire, des volumes et de la lumière, puis nous suivons le chantier jusqu'à la dernière poignée de porte.</p>
-        <div class="hero__actions">
-          <a class="btn btn--dark" href="#projets">Voir les projets</a>
-          <a class="btn btn--line" href="#contact">Parler d'un projet</a>
-        </div>
+        <h1 id="heroTitle">Appartements, hôtels, restaurants et objets.</h1>
+        <p class="hero__lead">Atelier Chaux est un studio d'architecture intérieure installé à Paris. Nous suivons chaque projet de la première visite à la réception du chantier, en France comme à l'étranger.</p>
+        <p class="hero__actions"><a class="text-link" href="#projets">Voir les projets</a></p>
       </div>
       <figure class="hero__media">
         <img src="./assets/images/Malt-Juniper-New-York.jpg" alt="Bar Malt &amp; Juniper à New York : banquette, bois sombre et lumière tamisée" width="2732" height="4096" fetchpriority="high">
@@ -60,19 +56,9 @@
       </figure>
     </section>
 
-    <!-- Chiffres clés : à confirmer, voir README -->
-    <section class="facts" aria-label="L'atelier en bref">
-      <dl>
-        <div><dt id="factProjects">11</dt><dd>projets livrés présentés ici</dd></div>
-        <div><dt>4</dt><dd>pays : France, Italie, Royaume-Uni, Inde</dd></div>
-        <div><dt>1</dt><dd>interlocutrice, de l'esquisse à la livraison</dd></div>
-      </dl>
-    </section>
-
     <!-- Projets -->
     <section class="projects" id="projets" aria-labelledby="projectsTitle">
       <div class="section-head">
-        <p class="eyebrow">Sélection</p>
         <h2 id="projectsTitle">Projets</h2>
       </div>
       <div class="filters" id="filters" role="toolbar" aria-label="Filtrer les projets par type"></div>
@@ -88,23 +74,19 @@
     <!-- Approche -->
     <section class="approach" id="approche" aria-labelledby="approachTitle">
       <div class="section-head">
-        <p class="eyebrow">Méthode</p>
-        <h2 id="approachTitle">Une approche en trois temps</h2>
+        <h2 id="approachTitle">Méthode</h2>
       </div>
       <ol class="steps">
         <li>
-          <span class="steps__num">01</span>
-          <h3>Écouter le lieu</h3>
+          <h3>Relevé et programme</h3>
           <p>Visite, relevés, usages, budget. Nous racontons votre histoire avant de dessiner, pour valoriser vos idées plutôt que les nôtres.</p>
         </li>
         <li>
-          <span class="steps__num">02</span>
-          <h3>Concevoir par la matière</h3>
+          <h3>Conception</h3>
           <p>Volumes, couleurs et matériaux choisis ensemble, dans le respect de l'esprit des lieux. Plans, planches matières et vues 3D à chaque étape.</p>
         </li>
         <li>
-          <span class="steps__num">03</span>
-          <h3>Tenir le chantier</h3>
+          <h3>Suivi de chantier</h3>
           <p>Suivi hebdomadaire, respect du planning et du budget. Si le projet le demande, une équipe se constitue : architecte DPLG, décoratrice, artisans.</p>
         </li>
       </ol>
@@ -116,18 +98,15 @@
         <img src="./assets/images/sophie-bluel.png" alt="Portrait de la fondatrice de l'atelier" width="948" height="710" loading="lazy">
       </figure>
       <div class="studio__text">
-        <p class="eyebrow">L'atelier</p>
-        <h2 id="studioTitle">Petite structure, grande attention au détail</h2>
+        <h2 id="studioTitle">L'atelier</h2>
         <p>Atelier Chaux est un studio d'architecture intérieure fondé à Paris. Nous travaillons pour des particuliers comme pour des établissements recevant du public, avec la même exigence : des espaces calmes, durables, faciles à vivre.</p>
-        <p>La chaux, c'est la matière qui respire. Nous la prenons comme ligne de conduite : des choix sobres, des matériaux honnêtes, une lumière travaillée.</p>
-      </div>
+              </div>
     </section>
 
     <!-- Contact -->
     <section class="contact" id="contact" aria-labelledby="contactTitle">
       <div class="contact__intro">
-        <p class="eyebrow">Contact</p>
-        <h2 id="contactTitle">Vous avez un projet&nbsp;?</h2>
+        <h2 id="contactTitle">Contact</h2>
         <p>Décrivez-le en quelques lignes : le lieu, la surface, le calendrier. Nous répondons sous 48&nbsp;heures ouvrées.</p>
         <ul class="contact__details">
           <li><span>Écrire</span> <b>bonjour@atelier-chaux.fr</b></li>
@@ -165,6 +144,7 @@
   <footer class="site-footer">
     <p class="site-footer__brand">Atelier Chaux</p>
     <p>Projet conçu et développé par <a href="https://diurnstudio.fr">Diurn</a>, à partir d'un brief de formation. Projets et visuels fictifs.</p>
+    <a href="./login/login.html">Espace atelier</a>
     <a href="#top">Haut de page ↑</a>
   </footer>
 

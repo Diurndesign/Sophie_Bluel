@@ -114,7 +114,6 @@ function renderGallery() {
   gallery.innerHTML = ""
   visibleWorks().forEach((work, i) => gallery.appendChild(createCard(work, i)))
   gallery.setAttribute("aria-busy", "false")
-  $("#factProjects").textContent = state.works.length
 }
 
 function renderFilters() {

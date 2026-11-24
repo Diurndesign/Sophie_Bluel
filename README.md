@@ -23,7 +23,7 @@ référence, sans toucher au code.
 
 ## Choix de conception
 
-- **Direction artistique minérale** : fond chaux, encre, accent terre cuite ; Fraunces (serif éditoriale) et Inter. Le nom « Chaux » donne la ligne : des matières qui respirent, des choix sobres.
+- **Direction artistique minérale** : fond chaux, encre, accent terre cuite ; Libre Caslon Display (titres) et Public Sans (texte). 
 - **Rythme éditorial** plutôt qu'une grille uniforme : une colonne sur trois décalée, grands titres, numérotation des projets.
 - **Accessibilité** : lien d'évitement, focus visibles, `aria-pressed` sur les filtres, `aria-live` sur les messages, dialogues natifs (piège du focus et Échap gérés par le navigateur), respect de `prefers-reduced-motion`.
 - **Sans framework ni build** : HTML, CSS et JavaScript natifs, ~400 lignes de JS.
