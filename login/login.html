@@ -2,55 +2,54 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Sophie Bluel - Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espace atelier · Atelier Chaux</title>
+  <meta name="robots" content="noindex">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../index/index.css">
-<link rel="stylesheet" href="../login/login.css">
+  <link rel="stylesheet" href="./login.css">
 </head>
-<body>
+<body class="login-page">
+  <main class="login">
+    <figure class="login__media" aria-hidden="true">
+      <img src="../assets/images/hotel-first-arte-new-delhi.png" alt="" width="608" height="810">
+    </figure>
 
-<header>
-  <a href="../index.html">
-    <h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
-  </a>
-<nav>
-  <ul>
-    <li><a href="../index.html#portfolio">projets</a></li>
-    <li><a href="../index.html#contact">contact</a></li>
-    <li class="active">login</li>
-    <li><a href="#"><img src="../assets/icons/instagram.svg" alt="Instagram"></a></li>
-  </ul>
-</nav>
-  </header>
+    <section class="login__panel" aria-labelledby="loginTitle">
+      <a class="brand" href="../index.html">
+        <span class="brand__name">Atelier Chaux</span>
+        <span class="brand__tag">Architecture intérieure</span>
+      </a>
 
-  <main>
-    <section id="login">
-      <div class="login__container">
-        <h2>Log In</h2>
-        <form action="#" method="post">
-  <label for="email">E-mail</label>
-  <input type="email" name="email" id="email" required>
-  <label for="password">Mot de passe</label>
-  <input type="password" name="password" id="password" required>
-  <p class="login__error" id="errorMessage">Erreur dans l'identifiant ou le mot de passe</p>
-  <button type="submit" class="login__button">Se connecter</button>
-</form>
-        <a href="#" class="login__forgot">Mot de passe oublié</a>
+      <div class="login__box">
+        <p class="eyebrow">Espace atelier</p>
+        <h1 id="loginTitle">Gérer les projets publiés</h1>
+        <p class="login__lead">Connectez-vous pour ajouter ou retirer des réalisations de la galerie.</p>
+
+        <form id="loginForm" novalidate>
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input type="email" name="email" id="email" autocomplete="username" required>
+          </div>
+          <div class="field">
+            <label for="password">Mot de passe</label>
+            <div class="password">
+              <input type="password" name="password" id="password" autocomplete="current-password" required>
+              <button type="button" class="password__toggle" id="togglePassword" aria-pressed="false">Afficher</button>
+            </div>
+          </div>
+          <p class="form-msg" id="errorMessage" role="alert"></p>
+          <button type="submit" class="btn btn--dark btn--block" id="loginSubmit">Se connecter</button>
+        </form>
       </div>
+
+      <a class="login__back" href="../index.html">← Retour au site</a>
     </section>
   </main>
 
-  <footer>
-    <nav>
-      <ul>
-        <li><a href="#">Mentions Légales</a></li>
-      </ul>
-    </nav>
-  </footer>
-<script src="../demo/demo-api.js"></script>
-<script src="./login.js"></script>
+  <script src="../demo/demo-api.js"></script>
+  <script src="./login.js"></script>
 </body>
 </html>

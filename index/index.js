@@ -1,477 +1,472 @@
-// Vérification de la connexion
+// ==========================================================
+//  Atelier Chaux · page d'accueil
+//  Galerie filtrable, fiche projet, administration (ajout / retrait)
+//  API REST : http://localhost:5678/api (simulée en ligne par demo/demo-api.js)
+// ==========================================================
+const API = "http://localhost:5678/api"
 const token = localStorage.getItem("token")
+const isAdmin = Boolean(token)
 
-// Gestion du loader : il ne disparaît qu'une fois les données chargées (succès ou échec),
-// avec un délai minimum pour éviter un flash trop brusque sur une connexion très rapide
-const loader = document.querySelector(".loader")
-const isFirstVisit = !sessionStorage.getItem("loaderShown")
-sessionStorage.setItem("loaderShown", "true")
-
-if (!isFirstVisit) {
-  // Visite suivante → suppression immédiate, pas d'animation
-  loader.remove()
+const state = {
+  works: [],
+  categories: [],
+  activeCategory: null, // null = tous
 }
 
-const minLoaderDelay = new Promise(resolve => setTimeout(resolve, 500))
+const $ = (selector) => document.querySelector(selector)
 
-function hideLoader() {
-  if (!isFirstVisit) return // déjà supprimé
+// ---------- Utilitaires ----------
 
-  minLoaderDelay.then(() => {
-    loader.style.transition = "opacity 1.2s ease"
-    loader.style.opacity = "0"
-    setTimeout(() => loader.remove(), 1200)
+// Sépare "Restaurant Sushisen - Londres" en titre + lieu
+function splitTitle(title) {
+  const parts = String(title).split(/\s+-\s+/)
+  return parts.length > 1
+    ? { name: parts.slice(0, -1).join(" - "), place: parts.at(-1) }
+    : { name: title, place: "" }
+}
+
+function categoryName(id) {
+  const category = state.categories.find(c => c.id === Number(id))
+  return category ? category.name : ""
+}
+
+function visibleWorks() {
+  return state.activeCategory === null
+    ? state.works
+    : state.works.filter(w => w.categoryId === state.activeCategory)
+}
+
+let toastTimer
+function toast(message) {
+  const el = $("#toast")
+  el.textContent = message
+  el.classList.add("is-visible")
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => el.classList.remove("is-visible"), 3000)
+}
+
+function authHeaders() {
+  return { Authorization: `Bearer ${token}` }
+}
+
+// ---------- Chargement des données ----------
+
+function loadData() {
+  return Promise.all([
+    fetch(`${API}/works`).then(r => r.json()),
+    fetch(`${API}/categories`).then(r => r.json()),
+  ]).then(([works, categories]) => {
+    state.works = works
+    state.categories = categories
   })
 }
 
-// Récupération des projets et catégories en parallèle
-Promise.all([
-  fetch("http://localhost:5678/api/works").then(response => response.json()),
-  fetch("http://localhost:5678/api/categories").then(response => response.json())
-])
-.then(([works, categories]) => {
-  displayWorks(works)
-  if (!token) {
-    displayFilters(works, categories)
-  }
-  hideLoader()
-})
-.catch(error => {
-  console.error('Erreur: ', error)
-  // Back inaccessible (perte réseau, serveur down...) → message visible
-  const galleryError = document.getElementById("galleryError")
-  galleryError.textContent = "Impossible de charger les projets. Réessayez plus tard."
-  galleryError.style.display = "block"
-  hideLoader()
-})
+// ---------- Galerie publique ----------
 
-// Création d'une figure pour la galerie principale
-function createGalleryFigure(work) {
-  const figure = document.createElement("figure")
+function createCard(work, index) {
+  const { name, place } = splitTitle(work.title)
+  const li = document.createElement("li")
+  li.className = "card"
+  li.style.animationDelay = `${Math.min(index, 8) * 60}ms`
+
+  const button = document.createElement("button")
+  button.type = "button"
+  button.className = "card__btn"
+  button.setAttribute("aria-label", `Voir le projet ${work.title}`)
+  button.addEventListener("click", () => openViewer(work.id))
+
+  const media = document.createElement("div")
+  media.className = "card__media"
   const img = document.createElement("img")
   img.src = work.imageUrl
   img.alt = work.title
-  const figcaption = document.createElement("figcaption")
-  figcaption.textContent = work.title
-  figure.appendChild(img)
-  figure.appendChild(figcaption)
-  return figure
+  img.loading = "lazy"
+  img.width = 610
+  img.height = 814
+  media.appendChild(img)
+
+  const meta = document.createElement("div")
+  meta.className = "card__meta"
+  const title = document.createElement("h3")
+  title.className = "card__title"
+  title.textContent = name
+  const num = document.createElement("span")
+  num.className = "card__num"
+  num.textContent = String(index + 1).padStart(2, "0")
+  meta.append(title, num)
+
+  const sub = document.createElement("p")
+  sub.className = "card__sub"
+  sub.textContent = [categoryName(work.categoryId), place].filter(Boolean).join(" · ")
+
+  button.append(media, meta, sub)
+  li.appendChild(button)
+  return li
 }
 
-// Affichage des projets dans la galerie
-function displayWorks(works) {
-  const gallery = document.querySelector(".gallery")
+function renderGallery() {
+  const gallery = $("#gallery")
   gallery.innerHTML = ""
-  works.forEach(work => gallery.appendChild(createGalleryFigure(work)))
+  visibleWorks().forEach((work, i) => gallery.appendChild(createCard(work, i)))
+  gallery.setAttribute("aria-busy", "false")
+  $("#factProjects").textContent = state.works.length
 }
 
-// Suppression de la classe active sur les boutons
-function removeActive() {
-  document.querySelectorAll(".filters button")
-    .forEach(btn => btn.classList.remove("active"))
-}
+function renderFilters() {
+  const filters = $("#filters")
+  filters.innerHTML = ""
 
-// Génération des boutons de filtre
-function displayFilters(works, categories) {
-  const filters = document.querySelector(".filters")
+  const entries = [{ id: null, name: "Tous", count: state.works.length }].concat(
+    state.categories.map(c => ({
+      id: c.id,
+      name: c.name,
+      count: state.works.filter(w => w.categoryId === c.id).length,
+    }))
+  )
 
-  // Bouton "Tous" actif par défaut
-  const btnAll = document.createElement("button")
-  btnAll.textContent = "Tous"
-  btnAll.classList.add("active")
-  btnAll.addEventListener("click", () => {
-    removeActive()
-    btnAll.classList.add("active")
-    displayWorks(works)
-  })
-  filters.appendChild(btnAll)
-
-  // Un bouton par catégorie
-  categories.forEach(category => {
+  entries.forEach(entry => {
     const btn = document.createElement("button")
-    btn.textContent = category.name
+    btn.type = "button"
+    btn.innerHTML = `<span></span><sup></sup>`
+    btn.querySelector("span").textContent = entry.name
+    btn.querySelector("sup").textContent = entry.count
+    btn.setAttribute("aria-pressed", String(entry.id === state.activeCategory))
     btn.addEventListener("click", () => {
-      removeActive()
-      btn.classList.add("active")
-      const filteredWorks = works.filter(work => work.categoryId === category.id)
-      displayWorks(filteredWorks)
+      state.activeCategory = entry.id
+      filters.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", "false"))
+      btn.setAttribute("aria-pressed", "true")
+      renderGallery()
     })
     filters.appendChild(btn)
   })
 }
 
-// Gestion du mode édition
-const editBanner = document.getElementById("editBanner")
-const editButton = document.getElementById("editButton")
-const filtersDiv = document.getElementById("filters")
-const loginNav = document.getElementById("loginNav")
+// ---------- Fiche projet (dialog) ----------
 
-if (token) {
-  // Sophie est connectée → affichage du mode édition
-  document.getElementById("portfolio").classList.add("no-filters")
-  editBanner.style.display = "block"
-  editButton.style.display = "inline-block"
-  document.body.style.marginTop = "40px"
-  filtersDiv.style.display = "none"
-  loginNav.innerHTML = "<a href='#'>logout</a>"
+const viewer = $("#viewer")
+let viewerIndex = 0
 
-  // Déconnexion au clic sur logout
-  loginNav.addEventListener("click", () => {
+function openViewer(workId) {
+  viewerIndex = visibleWorks().findIndex(w => w.id === workId)
+  fillViewer()
+  if (!viewer.open) viewer.showModal()
+}
+
+function fillViewer() {
+  const list = visibleWorks()
+  const work = list[viewerIndex]
+  if (!work) return
+  const { name, place } = splitTitle(work.title)
+  $("#viewerImg").src = work.imageUrl
+  $("#viewerImg").alt = work.title
+  $("#viewerCat").textContent = categoryName(work.categoryId)
+  $("#viewerTitle").textContent = name
+  $("#viewerPlace").textContent = place ? `Lieu : ${place}` : ""
+  $("#viewerCount").textContent = `${String(viewerIndex + 1).padStart(2, "0")} / ${String(list.length).padStart(2, "0")}`
+}
+
+function stepViewer(delta) {
+  const length = visibleWorks().length
+  viewerIndex = (viewerIndex + delta + length) % length
+  fillViewer()
+}
+
+$("#viewerPrev").addEventListener("click", () => stepViewer(-1))
+$("#viewerNext").addEventListener("click", () => stepViewer(1))
+viewer.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft") stepViewer(-1)
+  if (e.key === "ArrowRight") stepViewer(1)
+})
+
+// Fermeture des dialogues : bouton ✕ ou clic sur le fond
+document.querySelectorAll("dialog").forEach(dialog => {
+  dialog.querySelectorAll("[data-close]").forEach(btn => btn.addEventListener("click", () => dialog.close()))
+  dialog.addEventListener("click", (e) => { if (e.target === dialog) dialog.close() })
+})
+
+// ---------- Démarrage ----------
+
+loadData()
+  .then(() => {
+    renderFilters()
+    renderGallery()
+  })
+  .catch(error => {
+    console.error("Erreur :", error)
+    $("#gallery").innerHTML = ""
+    $("#gallery").setAttribute("aria-busy", "false")
+    $("#galleryStatus").textContent = "Impossible de charger les projets pour le moment. Réessayez dans quelques instants."
+  })
+
+// ---------- En-tête : ombre au défilement + lien actif ----------
+
+const header = $(".site-header")
+window.addEventListener("scroll", () => {
+  header.classList.toggle("is-scrolled", window.scrollY > 10)
+}, { passive: true })
+
+const navLinks = document.querySelectorAll(".site-nav a[href^='#']")
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return
+    navLinks.forEach(a => a.setAttribute("aria-current", String(a.getAttribute("href") === `#${entry.target.id}`)))
+  })
+}, { rootMargin: "-45% 0px -50% 0px" })
+document.querySelectorAll("main section[id]").forEach(s => observer.observe(s))
+
+// ---------- Formulaire de contact (pas de back-end : validation + confirmation) ----------
+
+$("#contactForm").addEventListener("submit", (e) => {
+  e.preventDefault()
+  const form = e.currentTarget
+  const msg = $("#contactMsg")
+  let firstInvalid = null
+
+  form.querySelectorAll("[required]").forEach(field => {
+    const valid = field.checkValidity() && field.value.trim() !== ""
+    field.setAttribute("aria-invalid", String(!valid))
+    if (!valid && !firstInvalid) firstInvalid = field
+  })
+
+  if (firstInvalid) {
+    msg.classList.remove("is-ok")
+    msg.textContent = "Merci de renseigner votre nom, un e-mail valide et un message."
+    firstInvalid.focus()
+    return
+  }
+
+  msg.classList.add("is-ok")
+  msg.textContent = "Merci, votre demande est bien partie. Réponse sous 48 heures ouvrées."
+  form.reset()
+})
+
+// ==========================================================
+//  Administration (uniquement si connecté)
+// ==========================================================
+if (isAdmin) {
+  document.body.classList.add("is-admin")
+  $("#adminBar").hidden = false
+  $("#loginNav").hidden = true
+  initAdmin()
+}
+
+function initAdmin() {
+  const manager = $("#manager")
+  const views = {
+    list: $("#managerList"),
+    add: $("#addWorkForm"),
+    confirm: $("#managerConfirm"),
+  }
+  const titles = { list: "Projets publiés", add: "Nouveau projet", confirm: "Retirer un projet" }
+  const back = $("#managerBack")
+  const form = $("#addWorkForm")
+  const fileInput = $("#fileInput")
+  const preview = $("#dropzonePreview")
+  const empty = $("#dropzoneEmpty")
+  const dropzone = $("#dropzone")
+  const formMsg = $("#formMsg")
+  const submitBtn = $("#submitBtn")
+  let workToDelete = null
+
+  function show(name) {
+    Object.entries(views).forEach(([key, el]) => { el.hidden = key !== name })
+    $("#managerTitle").textContent = titles[name]
+    back.hidden = name === "list"
+  }
+
+  // Ouverture / déconnexion
+  $("#openManager").addEventListener("click", () => {
+    show("list")
+    renderManagerGrid()
+    $("#managerMsg").textContent = ""
+    manager.showModal()
+  })
+  $("#logoutBtn").addEventListener("click", () => {
     localStorage.removeItem("token")
     window.location.reload()
   })
-
-} else {
-  // Visiteur → masquage des éléments d'édition
-  editBanner.style.display = "none"
-  editButton.style.display = "none"
-  document.body.style.marginTop = "0"
-}
-
-// Gestion de la modale
-const modal = document.getElementById("modal")
-const modalClose = document.getElementById("modalClose")
-const modalGallery = document.getElementById("modalGallery")
-const modalForm = document.getElementById("modalForm")
-const modalAddBtn = document.getElementById("modalAddBtn")
-const modalBack = document.getElementById("modalBack")
-const modalOverlay = document.querySelector(".modal__overlay")
-const editBtn = document.getElementById("editButton")
-const modalUpload = document.getElementById("modalUpload")
-const uploadPreview = modalUpload.querySelector("img")
-const formError = document.getElementById("formError")
-const modalSuccess = document.getElementById("modalSuccess")
-const formSuccess = document.getElementById("formSuccess")
-const modalError = document.getElementById("modalError")
-
-// Affichage d'un message d'erreur persistant dans la galerie de la modale
-function showModalError(message) {
-  modalError.textContent = message
-  modalError.style.display = "block"
-}
-const modalConfirm = document.getElementById("modalConfirm")
-const confirmImage = document.getElementById("confirmImage")
-const confirmTitle = document.getElementById("confirmTitle")
-const confirmCancel = document.getElementById("confirmCancel")
-const confirmDelete = document.getElementById("confirmDelete")
-let workToDelete = null
-
-// Affichage de la confirmation de suppression pour un projet donné
-function askDeleteConfirmation(work) {
-  workToDelete = work
-  confirmImage.src = work.imageUrl
-  confirmImage.alt = work.title
-  confirmTitle.textContent = work.title
-  modalConfirm.classList.add("active")
-}
-
-confirmCancel.addEventListener("click", () => {
-  workToDelete = null
-  modalConfirm.classList.remove("active")
-})
-
-// Suppression effective du projet après confirmation
-confirmDelete.addEventListener("click", () => {
-  if (!workToDelete) return
-
-  fetch(`http://localhost:5678/api/works/${workToDelete.id}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${token}`
-    }
+  back.addEventListener("click", () => show("list"))
+  $("#managerAdd").addEventListener("click", () => {
+    resetForm()
+    fillCategories()
+    show("add")
+    $("#workTitle").focus()
   })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error("La suppression a échoué.")
-    }
 
-    modalConfirm.classList.remove("active")
-    workToDelete = null
+  // Liste des projets avec bouton de retrait
+  function renderManagerGrid() {
+    const grid = $("#managerGrid")
+    grid.innerHTML = ""
+    state.works.forEach(work => {
+      const li = document.createElement("li")
+      const figure = document.createElement("figure")
+      figure.style.margin = "0"
+      const img = document.createElement("img")
+      img.src = work.imageUrl
+      img.alt = ""
+      const caption = document.createElement("figcaption")
+      caption.textContent = work.title
+      figure.append(img, caption)
 
-    // Rechargement de la grille et de la galerie principale
-    loadModalWorks()
-    showSuccess(modalSuccess, "Photo supprimée avec succès")
-    fetch("http://localhost:5678/api/works")
-      .then(r => r.json())
-      .then(works => displayWorks(works))
-  })
-  .catch(error => {
-    console.error("Erreur: ", error)
-    modalConfirm.classList.remove("active")
-    showModalError(
-      error.message === "La suppression a échoué."
-        ? error.message
-        : "Connexion au serveur impossible. Réessayez plus tard"
-    )
-  })
-})
+      const del = document.createElement("button")
+      del.type = "button"
+      del.className = "manager__del"
+      del.setAttribute("aria-label", `Retirer ${work.title}`)
+      del.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M6 1h4l.5 1H14v1.5H2V2h3.5L6 1Zm-3 3.5h10l-.7 9.6A1.5 1.5 0 0 1 10.8 15H5.2a1.5 1.5 0 0 1-1.5-1.4L3 4.5Z"/></svg>`
+      del.addEventListener("click", () => askDelete(work))
 
-// Ouverture de la modale
-editBtn.addEventListener("click", () => {
-  modal.classList.add("active")
-  showGallery()
-  loadModalWorks()
-  modalSuccess.style.display = "none"
-  modalConfirm.classList.remove("active")
-  workToDelete = null
-})
-
-// Fermeture de la modale
-modalClose.addEventListener("click", () => modal.classList.remove("active"))
-modalOverlay.addEventListener("click", () => {
-  // Un clic en dehors ferme d'abord la confirmation si elle est ouverte
-  if (modalConfirm.classList.contains("active")) {
-    modalConfirm.classList.remove("active")
-    workToDelete = null
-  } else {
-    modal.classList.remove("active")
+      li.append(figure, del)
+      grid.appendChild(li)
+    })
   }
-})
 
-// Passage vers le formulaire d'ajout
-modalAddBtn.addEventListener("click", () => {
-  modalGallery.style.display = "none"
-  modalForm.style.display = "block"
-  loadCategories()
-  resetAddWorkForm()
-})
-
-// Retour vers la galerie
-modalBack.addEventListener("click", () => {
-  modalForm.style.display = "none"
-  modalGallery.style.display = "block"
-})
-
-// Affichage de la vue galerie
-function showGallery() {
-  modalGallery.style.display = "block"
-  modalForm.style.display = "none"
-}
-
-// Affichage temporaire d'un message de confirmation
-function showSuccess(element, message) {
-  element.textContent = message
-  element.style.display = "block"
-  setTimeout(() => element.style.display = "none", 3000)
-}
-
-// Création d'une figure pour la grille de la modale (avec bouton de suppression)
-function createModalFigure(work) {
-  const figure = document.createElement("figure")
-  const img = document.createElement("img")
-  img.src = work.imageUrl
-  img.alt = work.title
-
-  const deleteBtn = document.createElement("button")
-  deleteBtn.classList.add("delete-btn")
-  deleteBtn.innerHTML = `<img src="./assets/icons/recycle.svg" alt="supprimer">`
-
-  // Demande de confirmation au clic sur la corbeille
-  deleteBtn.addEventListener("click", () => askDeleteConfirmation(work))
-
-  figure.appendChild(img)
-  figure.appendChild(deleteBtn)
-  return figure
-}
-
-// Chargement des projets dans la grille de la modale
-function loadModalWorks() {
-  const modalGrid = document.getElementById("modalGrid")
-  modalGrid.innerHTML = ""
-  modalError.style.display = "none"
-
-  fetch("http://localhost:5678/api/works")
-    .then(response => response.json())
-    .then(works => {
-      works.forEach(work => modalGrid.appendChild(createModalFigure(work)))
-    })
-    .catch(error => {
-      console.error("Erreur: ", error)
-      showModalError("Impossible de charger les projets. Réessayez plus tard.")
-    })
-}
-
-// Chargement des catégories dans le select
-function loadCategories() {
-  const select = document.getElementById("workCategory")
-
-  // Évite de charger les catégories plusieurs fois
-  if (select.children.length > 1) return
-
-  fetch("http://localhost:5678/api/categories")
-    .then(response => response.json())
-    .then(categories => {
-      categories.forEach(category => {
-        const option = document.createElement("option")
-        option.value = category.id
-        option.textContent = category.name
-        select.appendChild(option)
+  // Confirmation puis retrait
+  function askDelete(work) {
+    workToDelete = work
+    $("#confirmImage").src = work.imageUrl
+    $("#confirmTitle").textContent = work.title
+    show("confirm")
+    $("#confirmCancel").focus()
+  }
+  $("#confirmCancel").addEventListener("click", () => { workToDelete = null; show("list") })
+  $("#confirmDelete").addEventListener("click", () => {
+    if (!workToDelete) return
+    const work = workToDelete
+    fetch(`${API}/works/${work.id}`, { method: "DELETE", headers: authHeaders() })
+      .then(response => {
+        if (!response.ok) throw new Error("refused")
+        state.works = state.works.filter(w => w.id !== work.id)
+        workToDelete = null
+        renderManagerGrid()
+        renderGallery()
+        show("list")
+        toast(`« ${work.title} » a été retiré du site`)
       })
+      .catch(error => {
+        console.error("Erreur :", error)
+        show("list")
+        $("#managerMsg").textContent = error.message === "refused"
+          ? "Le retrait a été refusé. Reconnectez-vous puis réessayez."
+          : "Connexion au serveur impossible. Réessayez plus tard."
+      })
+  })
+
+  // Catégories du formulaire
+  function fillCategories() {
+    const select = $("#workCategory")
+    if (select.options.length > 1) return
+    state.categories.forEach(c => select.add(new Option(c.name, c.id)))
+  }
+
+  // Validation d'image par signature binaire (plus fiable que l'extension)
+  function isJpegOrPng(file) {
+    return file.slice(0, 4).arrayBuffer().then(buffer => {
+      const [b0, b1, b2, b3] = new Uint8Array(buffer)
+      const isJpeg = b0 === 0xff && b1 === 0xd8 && b2 === 0xff
+      const isPng = b0 === 0x89 && b1 === 0x50 && b2 === 0x4e && b3 === 0x47
+      return isJpeg || isPng
     })
-    .catch(error => {
-      console.error("Erreur: ", error)
-      formError.textContent = "Impossible de charger les catégories. Réessayez plus tard."
-      formError.style.display = "block"
-    })
-}
-
-// Envoi du formulaire d'ajout de projet
-document.getElementById("addWorkForm").addEventListener("submit", (event) => {
-  event.preventDefault()
-
-  const title = document.getElementById("workTitle").value
-  const category = document.getElementById("workCategory").value
-  const file = document.getElementById("fileInput").files[0]
-
-  // Vérification que tous les champs sont remplis
-  if (!title || !category || !file) {
-    formError.textContent = "Veuillez remplir tous les champs et sélectionner une image."
-    formError.style.display = "block"
-    return
   }
 
-  // Construction du FormData pour l'envoi de l'image
-  const formData = new FormData()
-  formData.append("title", title)
-  formData.append("category", category)
-  formData.append("image", file)
-
-  fetch("http://localhost:5678/api/works", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${token}`
-    },
-    body: formData
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error("L'ajout du projet a échoué.")
-    }
-    return response.json()
-  })
-  .then(newWork => {
-    // Ajout du nouveau projet dans la grille de la modale et dans la galerie principale, sans recharger la page
-    document.getElementById("modalGrid").appendChild(createModalFigure(newWork))
-    document.querySelector(".gallery").appendChild(createGalleryFigure(newWork))
-
-    // Réinitialisation du formulaire et de la preview : on reste sur la vue formulaire
-    // pour permettre d'ajouter une nouvelle photo directement, sans re-cliquer sur "Ajouter une photo"
-    resetAddWorkForm()
-
-    // Confirmation visuelle de l'ajout
-    showSuccess(formSuccess, "Photo ajoutée avec succès")
-  })
-  .catch(error => {
-    console.error("Erreur: ", error)
-    formError.textContent = error.message === "L'ajout du projet a échoué."
-      ? error.message
-      : "Connexion au serveur impossible. Réessayez plus tard."
-    formError.style.display = "block"
-  })
-})
-
-// Activation du bouton valider quand le formulaire est complet
-const submitBtn = document.getElementById("submitBtn")
-const workTitle = document.getElementById("workTitle")
-const workCategory = document.getElementById("workCategory")
-const fileInput = document.getElementById("fileInput")
-
-function checkForm() {
-  if (workTitle.value && workCategory.value && fileInput.files[0]) {
-    // Formulaire complet → bouton actif
-    submitBtn.classList.add("active")
-    submitBtn.style.pointerEvents = "all"
-  } else {
-    // Formulaire incomplet → bouton grisé
-    submitBtn.classList.remove("active")
-    submitBtn.style.pointerEvents = "none"
-  }
-}
-
-workTitle.addEventListener("input", checkForm)
-workCategory.addEventListener("change", checkForm)
-// Vérifie la signature binaire ("magic bytes") du fichier : plus fiable que son
-// type MIME ou son extension, qui peuvent être falsifiés.
-function isJpegOrPng(file) {
-  return file.slice(0, 4).arrayBuffer().then(buffer => {
-    const [b0, b1, b2, b3] = new Uint8Array(buffer)
-    const isJpeg = b0 === 0xff && b1 === 0xd8 && b2 === 0xff
-    const isPng = b0 === 0x89 && b1 === 0x50 && b2 === 0x4e && b3 === 0x47
-    return isJpeg || isPng
-  })
-}
-
-// Rejet du fichier sélectionné (mauvais format ou trop lourd)
-function rejectFile() {
-  fileInput.value = ""
-  formError.textContent = "Veuillez choisir une image au format jpg ou png de 4mo maximum."
-  formError.style.display = "block"
-  checkForm()
-}
-
-fileInput.addEventListener("change", () => {
-  const file = fileInput.files[0]
-  formError.style.display = "none"
-
-  if (!file) {
-    checkForm()
-    return
+  function checkForm() {
+    submitBtn.disabled = !($("#workTitle").value.trim() && $("#workCategory").value && fileInput.files[0])
   }
 
-  const isValidSize = file.size <= 4 * 1024 * 1024 // 4mo max
-  if (!isValidSize) {
-    rejectFile()
-    return
-  }
-
-  isJpegOrPng(file).then(isValid => {
-    if (!isValid) {
-      rejectFile()
-      return
-    }
-
-    // Affichage de la preview de l'image sélectionnée, avec un fondu d'apparition
+  function showPreview(file) {
     const reader = new FileReader()
     reader.onload = () => {
-      uploadPreview.style.opacity = "0"
-      uploadPreview.src = reader.result
-      modalUpload.classList.add("has-preview")
-      requestAnimationFrame(() => uploadPreview.style.opacity = "1")
+      preview.src = reader.result
+      preview.hidden = false
+      empty.hidden = true
     }
     reader.readAsDataURL(file)
+  }
+
+  function rejectFile() {
+    fileInput.value = ""
+    preview.hidden = true
+    empty.hidden = false
+    formMsg.classList.remove("is-ok")
+    formMsg.textContent = "Choisissez une image JPG ou PNG de 4 Mo maximum."
     checkForm()
+  }
+
+  function handleFile(file) {
+    formMsg.textContent = ""
+    if (!file) return checkForm()
+    if (file.size > 4 * 1024 * 1024) return rejectFile()
+    isJpegOrPng(file).then(valid => {
+      if (!valid) return rejectFile()
+      showPreview(file)
+      checkForm()
+    })
+  }
+
+  fileInput.addEventListener("change", () => handleFile(fileInput.files[0]))
+
+  // Glisser-déposer
+  ;["dragenter", "dragover"].forEach(type => dropzone.addEventListener(type, (e) => {
+    e.preventDefault()
+    dropzone.classList.add("is-over")
+  }))
+  ;["dragleave", "drop"].forEach(type => dropzone.addEventListener(type, () => dropzone.classList.remove("is-over")))
+  dropzone.addEventListener("drop", (e) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files[0]
+    if (!file) return
+    const transfer = new DataTransfer()
+    transfer.items.add(file)
+    fileInput.files = transfer.files
+    handleFile(file)
   })
-})
 
-// Réinitialisation du formulaire d'ajout (champs, preview, erreur)
-function resetAddWorkForm() {
-  document.getElementById("addWorkForm").reset()
-  modalUpload.classList.remove("has-preview")
-  uploadPreview.src = "./assets/icons/pictures.svg"
-  uploadPreview.style.opacity = ""
-  formError.style.display = "none"
-  formSuccess.style.display = "none"
-  checkForm()
+  $("#workTitle").addEventListener("input", checkForm)
+  $("#workCategory").addEventListener("change", checkForm)
+
+  function resetForm() {
+    form.reset()
+    preview.hidden = true
+    preview.removeAttribute("src")
+    empty.hidden = false
+    formMsg.textContent = ""
+    checkForm()
+  }
+
+  // Publication
+  form.addEventListener("submit", (e) => {
+    e.preventDefault()
+    if (submitBtn.disabled) return
+
+    const formData = new FormData()
+    formData.append("title", $("#workTitle").value.trim())
+    formData.append("category", $("#workCategory").value)
+    formData.append("image", fileInput.files[0])
+
+    submitBtn.disabled = true
+    submitBtn.textContent = "Publication…"
+
+    fetch(`${API}/works`, { method: "POST", headers: authHeaders(), body: formData })
+      .then(response => {
+        if (!response.ok) throw new Error("refused")
+        return response.json()
+      })
+      .then(newWork => {
+        newWork.categoryId = Number(newWork.categoryId)
+        state.works.push(newWork)
+        renderGallery()
+        renderManagerGrid()
+        resetForm()
+        show("list")
+        toast(`« ${newWork.title} » est en ligne`)
+      })
+      .catch(error => {
+        console.error("Erreur :", error)
+        formMsg.classList.remove("is-ok")
+        formMsg.textContent = error.message === "refused"
+          ? "La publication a été refusée. Vérifiez les champs puis réessayez."
+          : "Connexion au serveur impossible. Réessayez plus tard."
+        checkForm()
+      })
+      .finally(() => { submitBtn.textContent = "Publier le projet" })
+  })
 }
-
-// Formulaire de contact : pas de backend dédié, simple confirmation visuelle à l'envoi
-const contactForm = document.getElementById("contactForm")
-const contactSubmit = document.getElementById("contactSubmit")
-
-contactForm.addEventListener("submit", (event) => {
-  event.preventDefault()
-
-  contactSubmit.style.backgroundColor = "#0E2F28"
-  setTimeout(() => contactSubmit.style.backgroundColor = "", 1000)
-})
-
-// Bouton retour en haut de page, visible après un certain défilement
-const backToTop = document.getElementById("backToTop")
-
-window.addEventListener("scroll", () => {
-  backToTop.classList.toggle("visible", window.scrollY > 400)
-})
-
-backToTop.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" })
-})

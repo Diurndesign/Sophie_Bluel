@@ -1,14 +1,35 @@
-.login__error {
-  color: #B1663C;
-  display: none;
-  margin-bottom: 15px;
-}
+/* Page de connexion · écran partagé image / formulaire */
+.login { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; min-height: 100dvh; }
+.login__media { margin: 0; position: relative; background: var(--chaux-2); }
+.login__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.login__panel { display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 40px; padding: clamp(24px, 5vw, 64px); }
+.login__box { width: min(420px, 100%); margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.login__box h1 { font-size: clamp(32px, 4vw, 46px); }
+.login__lead { color: var(--encre-2); margin-bottom: 10px; }
+.login__box form { display: flex; flex-direction: column; gap: 18px; }
+.login__panel > .brand, .login__back { width: min(420px, 100%); }
+.login__back { font-size: 14px; color: var(--gris); text-decoration: none; }
+.login__back:hover { color: var(--encre); }
 
-body {
-  animation: pageFadeIn 0.5s ease forwards;
+.password { position: relative; }
+.password input { padding-right: 92px; }
+.password__toggle {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  padding: 6px 10px; border: 0; background: none; cursor: pointer; font-size: 13px; color: var(--encre-2);
 }
+.password__toggle:hover { color: var(--terre); }
 
-@keyframes pageFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.demo-hint {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 14px; border: 1px dashed var(--trait); border-radius: var(--radius);
+  font-size: 13px; color: var(--encre-2); background: var(--papier);
+}
+.demo-hint code { font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+.demo-hint button { flex-shrink: 0; border: 0; background: none; color: var(--terre); cursor: pointer; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+
+.is-loading { opacity: .6; pointer-events: none; }
+
+@media (max-width: 820px) {
+  .login { grid-template-columns: 1fr; }
+  .login__media { height: 28vh; }
 }

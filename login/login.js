@@ -1,58 +1,60 @@
-// Redirection automatique si déjà connecté
-const token = localStorage.getItem("token")
+// Espace atelier · connexion à l'API (POST /api/users/login)
+const API = "http://localhost:5678/api"
 
-// Intercepter les clics sur les liens pour préserver l'ancre lors de la redirection
-document.addEventListener("click", (e) => {
-  const link = e.target.closest("a[href*='../index.html']")
-  if (link && token) {
-    const hash = new URL(link.href, window.location.href).hash
-    if (hash) {
-      sessionStorage.setItem("targetHash", hash)
-    }
-  }
-})
-
-if (token) {
-  const targetHash = sessionStorage.getItem("targetHash") || ""
-  sessionStorage.removeItem("targetHash")
-  window.location.href = "../index.html" + targetHash
+// Déjà connecté : retour direct au site
+if (localStorage.getItem("token")) {
+  window.location.replace("../index.html")
 }
 
-// Formulaire de connexion
-const form = document.querySelector("form")
+const form = document.getElementById("loginForm")
+const errorEl = document.getElementById("errorMessage")
+const submitBtn = document.getElementById("loginSubmit")
+const password = document.getElementById("password")
+const toggle = document.getElementById("togglePassword")
+
+// Afficher / masquer le mot de passe
+toggle.addEventListener("click", () => {
+  const visible = password.type === "text"
+  password.type = visible ? "password" : "text"
+  toggle.textContent = visible ? "Afficher" : "Masquer"
+  toggle.setAttribute("aria-pressed", String(!visible))
+})
 
 form.addEventListener("submit", (event) => {
   event.preventDefault()
+  errorEl.textContent = ""
 
-  // Email et mot de passe
-  const email = document.getElementById("email").value
-  const password = document.getElementById("password").value
-  const errorEl = document.getElementById("errorMessage")
+  const email = document.getElementById("email").value.trim()
+  const pwd = password.value
 
-  // Appel à l'API
-  fetch("http://localhost:5678/api/users/login", {
+  if (!email || !pwd) {
+    errorEl.textContent = "Renseignez votre e-mail et votre mot de passe."
+    return
+  }
+
+  submitBtn.classList.add("is-loading")
+  submitBtn.textContent = "Connexion…"
+
+  fetch(`${API}/users/login`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ email, password })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password: pwd }),
   })
-  .then(response => response.json())
-  .then(data => {
-    if (data.token) {
-      // Connexion OK → sauvegarde du token et redirection
-      localStorage.setItem("token", data.token)
-      window.location.href = "../index.html"
-    } else {
-      // Connexion KO → message d'erreur
-      errorEl.textContent = "Erreur dans l'identifiant ou le mot de passe"
-      errorEl.style.display = "block"
-    }
-  })
-  .catch(error => {
-    console.error("Error: ", error)
-    // Échec réseau (back inaccessible) → message d'erreur dédié
-    errorEl.textContent = "Connexion au serveur impossible. Vérifiez votre connexion et réessayez."
-    errorEl.style.display = "block"
-  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.token) {
+        localStorage.setItem("token", data.token)
+        window.location.href = "../index.html#projets"
+      } else {
+        errorEl.textContent = "E-mail ou mot de passe incorrect."
+      }
+    })
+    .catch(error => {
+      console.error("Erreur :", error)
+      errorEl.textContent = "Connexion au serveur impossible. Vérifiez votre connexion et réessayez."
+    })
+    .finally(() => {
+      submitBtn.classList.remove("is-loading")
+      submitBtn.textContent = "Se connecter"
+    })
 })

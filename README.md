@@ -1,77 +1,53 @@
-# Portfolio - Sophie Bluel
+# Atelier Chaux · site et back-office d'un studio d'architecture intérieure
 
-Portfolio professionnel de **Sophie Bluel**, architecte d'intérieur. Un site vitrine moderne et interactif présentant ses réalisations en design d'espace.
+Site vitrine d'un studio d'architecture intérieure **fictif**, avec un espace d'administration
+qui permet à l'atelier de publier ou retirer ses projets sans passer par un développeur.
 
-## À propos du projet
+**Démo :** https://sophiebluel-ten.vercel.app/ (identifiants de démonstration affichés sur la page de connexion)
 
-Ce projet est une application web complète permettant de :
-- **Parcourir** les projets d'architecture d'intérieur avec une galerie dynamique
-- **Filtrer** les projets par catégories (Objets, Appartements, Hôtels, Restaurants)
-- **S'authentifier** via un système de login sécurisé
-- **Gérer** les projets (ajouter/supprimer) dans une interface d'administration
-- **Consulter** les coordonnées de contact
+## Le besoin
 
-## Technologies utilisées
+Un petit studio veut montrer ses réalisations de façon éditoriale, être contacté pour de nouveaux
+projets, et garder la main sur sa galerie : ajouter un chantier livré, retirer une ancienne
+référence, sans toucher au code.
 
-### Frontend
-- **HTML5** - Structure sémantique
-- **CSS3** - Mise en page et animations fluides
-- **JavaScript (Vanilla)** - Logique interactive et gestion d'état
-  - Récupération dynamique des données via API
-  - Gestion du localStorage pour l'authentification
-  - Manipulation du DOM
-  - Gestion des événements
+## Ce que fait le site
 
-### API Backend
-- Communication REST avec l'API
-- Endpoints utilisés :
-  - `GET /api/works` - Récupération des projets
-  - `GET /api/categories` - Récupération des catégories
-  - `POST/DELETE /api/works` - Gestion des projets
-  - `POST /api/users/login` - Authentification
+- **Galerie filtrable** par type de projet (objets, appartements, hôtels et restaurants), avec compteur par filtre et lieu du projet lu dans son titre.
+- **Fiche projet** en plein écran (`<dialog>` natif) avec navigation précédent / suivant au clavier (← →, Échap).
+- **Espace atelier** : connexion par jeton (JWT), barre d'édition, gestion des projets dans une fenêtre dédiée.
+- **Ajout de projet** par glisser-déposer, aperçu immédiat, contrôle du format par signature binaire (JPG / PNG réels, pas seulement l'extension) et de la taille (4 Mo).
+- **Retrait de projet** avec confirmation et mise à jour de la galerie sans rechargement.
+- **Formulaire de contact** validé côté client, messages d'erreur accessibles.
+- **États de chargement et d'erreur** : squelettes pendant le chargement, message clair si l'API ne répond pas.
 
-## Fonctionnalités implémentées
+## Choix de conception
 
-### Page d'accueil
-- Présentation du designer
-- Système de filtres dynamiques avec animations
-- Animation de chargement (loader)
-- Section contact
-- Bouton "Retour en haut" flottant
+- **Direction artistique minérale** : fond chaux, encre, accent terre cuite ; Fraunces (serif éditoriale) et Inter. Le nom « Chaux » donne la ligne : des matières qui respirent, des choix sobres.
+- **Rythme éditorial** plutôt qu'une grille uniforme : une colonne sur trois décalée, grands titres, numérotation des projets.
+- **Accessibilité** : lien d'évitement, focus visibles, `aria-pressed` sur les filtres, `aria-live` sur les messages, dialogues natifs (piège du focus et Échap gérés par le navigateur), respect de `prefers-reduced-motion`.
+- **Sans framework ni build** : HTML, CSS et JavaScript natifs, ~400 lignes de JS.
 
-### Authentification
-- Page de login avec validation
-- Sauvegarde du token JWT en localStorage
-- Redirection automatique vers la page d'accueil après connexion
-- Gestion des erreurs (identifiants incorrects, serveur inaccessible)
-- Redirection automatique si l'utilisateur tente d'accéder à /login en étant déjà connecté
+## Technique
 
-## 📂 Structure du projet
+| | |
+|---|---|
+| Front | HTML5, CSS (variables, grid, `color-mix`), JavaScript natif |
+| API | REST : `GET /works`, `GET /categories`, `POST /works` (multipart), `DELETE /works/:id`, `POST /users/login` |
+| Démo en ligne | `demo/demo-api.js` simule l'API dans le navigateur (le back-end Node n'est pas hébergé). En local, il se désactive et le vrai back-end répond sur `localhost:5678`. |
 
-```
-FrontEnd/
-├── index/
-│   ├── index.html          # Page d'accueil principale
-│   ├── index.css           # Styles de l'accueil
-│   └── index.js            # Logique métier (galerie, filtres, modale)
-├── login/
-│   ├── login.html          # Page de connexion
-│   ├── login.css           # Styles du login
-│   └── login.js            # Logique d'authentification
-├── assets/
-│   ├── images/             # Images du portfolio
-│   └── icons/              # Icônes SVG
-└── README.md               # Ce fichier
-```
+## Lancer en local
 
-## 📝 Notes de développement
+1. Démarrer le back-end (Node + SQLite) sur le port 5678.
+2. Servir ce dossier avec n'importe quel serveur statique, par exemple `npx serve .`.
 
-- Le token JWT est stocké dans `localStorage` sous la clé `token`
-- L'authentification est vérifiée au chargement de la page
-- Les anchors (`#portfolio`, `#contact`) permettent une navigation fluide
-- Le système de filtres utilise des classes CSS pour l'animation
-- La modale utilise une overlay pour bloquer les interactions externes
+## Origine
 
-## 👨‍💻 Auteur
+Le projet part du brief « Portfolio d'architecte » de la formation Développeur web d'OpenClassrooms
+(API fournie, front-end à réaliser). Identité, contenus, interface et code front ont ensuite été
+entièrement repensés. Le studio, ses textes et ses chiffres sont fictifs ; les visuels proviennent
+des ressources du brief.
 
-Développé par **Diurn** en tant que projet portfolio
+---
+
+Conçu et développé par [Diurn](https://diurnstudio.fr).
