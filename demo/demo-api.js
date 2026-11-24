@@ -92,13 +92,20 @@
     return reply({ message: "Not found" }, 404);
   };
 
-  // Indice visuel des identifiants de démo sur la page de connexion
+  // Encart "identifiants de démonstration" sur la page de connexion
   document.addEventListener("DOMContentLoaded", function () {
-    const form = document.querySelector("form");
-    if (!form || !location.pathname.includes("/login")) return;
-    const hint = document.createElement("p");
-    hint.textContent = "Démo : sophie.bluel@test.tld / S0phie";
-    hint.style.cssText = "margin-top:1em;font-size:0.9em;color:#777;text-align:center";
-    form.appendChild(hint);
+    const form = document.querySelector("#loginForm");
+    if (!form) return;
+    const hint = document.createElement("div");
+    hint.className = "demo-hint";
+    hint.innerHTML =
+      "<span>Démo : <code>" + DEMO_USER.email + "</code> / <code>" + DEMO_USER.password + "</code></span>" +
+      '<button type="button">Remplir</button>';
+    hint.querySelector("button").addEventListener("click", function () {
+      form.querySelector("#email").value = DEMO_USER.email;
+      form.querySelector("#password").value = DEMO_USER.password;
+      form.querySelector("[type=submit]").focus();
+    });
+    form.prepend(hint);
   });
 })();

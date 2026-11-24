@@ -2,163 +2,226 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Sophie Bluel - Architecte d'intérieur</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atelier Chaux · Architecture intérieure</title>
+  <meta name="description" content="Atelier Chaux conçoit et rénove appartements, hôtels, restaurants et objets. Matières naturelles, lumière et suivi de chantier, de l'esquisse à la livraison.">
+  <meta name="theme-color" content="#EFEAE2">
+  <meta property="og:title" content="Atelier Chaux · Architecture intérieure">
+  <meta property="og:description" content="Appartements, hôtels, restaurants et objets : des lieux pensés par la matière et la lumière.">
+  <meta property="og:image" content="./assets/images/Malt-Juniper-New-York.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans:wght@400;500&display=swap" rel="stylesheet">
-  <meta name="description" content="">
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./index/index.css">
 </head>
 <body>
+  <a class="skip-link" href="#projets">Aller aux projets</a>
 
-  <!-- Bandeau mode édition -->
-  <div class="edit-banner" id="editBanner">
-    <p><img src="./assets/icons/edit.svg" alt="édition"> Mode édition</p>
-  </div>
-
-  <!-- Écran de chargement -->
-  <div class="loader">
-    <div class="loader__content">
-      <h1 class="loader__title">Sophie Bluel</h1>
-      <span class="loader__subtitle">Architecte d'intérieur</span>
+  <!-- Barre d'administration (visible une fois connecté) -->
+  <div class="admin-bar" id="adminBar" hidden>
+    <p><span class="admin-bar__dot" aria-hidden="true"></span> Mode édition</p>
+    <div class="admin-bar__actions">
+      <button type="button" class="admin-bar__btn" id="openManager">Gérer les projets</button>
+      <button type="button" class="admin-bar__link" id="logoutBtn">Se déconnecter</button>
     </div>
   </div>
 
-  <header>
-    <h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
-    <nav>
+  <header class="site-header" id="top">
+    <a class="brand" href="./index.html" aria-label="Atelier Chaux, accueil">
+      <span class="brand__name">Atelier Chaux</span>
+      <span class="brand__tag">Architecture intérieure</span>
+    </a>
+    <nav class="site-nav" aria-label="Navigation principale">
       <ul>
-        <li><a href="#portfolio">projets</a></li>
-        <li><a href="#contact">contact</a></li>
-        <li id="loginNav"><a href="./login/login.html">login</a></li>
-        <li><a href="#"><img src="./assets/icons/instagram.svg" alt="Instagram"></a></li>
+        <li><a href="#projets">Projets</a></li>
+        <li><a href="#approche">Méthode</a></li>
+        <li><a href="#atelier">L'atelier</a></li>
+        <li><a href="#contact" class="site-nav__cta">Contact</a></li>
+        <li id="loginNav"><a href="./login/login.html" class="site-nav__muted">Espace atelier</a></li>
       </ul>
     </nav>
   </header>
 
   <main>
-    <section id="introduction">
-      <figure>
-        <img src="./assets/images/sophie-bluel.png" alt="Sophie Bluel">
-      </figure>
-      <article>
-        <h2>Designer d'espace</h2>
-        <p>Je raconte votre histoire, je valorise vos idées. Je vous accompagne de la conception à la livraison finale du chantier.</p>
-        <p>Chaque projet sera étudié en commun, de façon à mettre en valeur les volumes, les matières et les couleurs dans le respect de l'esprit des lieux et le choix adapté des matériaux. Le suivi du chantier sera assuré dans le souci du détail, le respect du planning et du budget.</p>
-        <p>En cas de besoin, une équipe pluridisciplinaire peut-être constituée : architecte DPLG, décorateur(trice)</p>
-      </article>
-    </section>
-
-    <section id="portfolio">
-      <div class="portfolio__header">
-        <h2>Mes Projets</h2>
-        <button class="edit-button" id="editButton">
-          <img src="./assets/icons/edit.svg" alt="modifier"> Modifier
-        </button>
+    <!-- Ouverture -->
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero__text">
+        <h1 id="heroTitle">Appartements, hôtels, restaurants et objets.</h1>
+        <p class="hero__lead">Atelier Chaux est un studio d'architecture intérieure installé à Paris. Nous suivons chaque projet de la première visite à la réception du chantier, en France comme à l'étranger.</p>
+        <p class="hero__actions"><a class="text-link" href="#projets">Voir les projets</a></p>
       </div>
-      <p class="gallery-error" id="galleryError"></p>
-      <div class="filters" id="filters"></div>
-      <div class="gallery"></div>
+      <figure class="hero__media">
+        <img src="./assets/images/Malt-Juniper-New-York.jpg" alt="Bar Malt &amp; Juniper à New York : banquette, bois sombre et lumière tamisée" width="2732" height="4096" fetchpriority="high">
+        <figcaption>Malt &amp; Juniper, New York</figcaption>
+      </figure>
     </section>
 
-    <section id="contact">
-      <h2>Contact</h2>
-      <p>Vous avez un projet ? Discutons-en !</p>
-      <form id="contactForm">
-        <label for="name">Nom</label>
-        <input type="text" name="name" id="name">
-        <label for="email">Email</label>
-        <input type="email" name="email" id="email">
-        <label for="message">Message</label>
-        <textarea name="message" id="message" cols="30" rows="10"></textarea>
-        <input type="submit" value="Envoyer" id="contactSubmit">
+    <!-- Projets -->
+    <section class="projects" id="projets" aria-labelledby="projectsTitle">
+      <div class="section-head">
+        <h2 id="projectsTitle">Projets</h2>
+      </div>
+      <div class="filters" id="filters" role="toolbar" aria-label="Filtrer les projets par type"></div>
+      <p class="gallery-status" id="galleryStatus" role="status" aria-live="polite"></p>
+      <ul class="gallery" id="gallery" aria-busy="true">
+        <!-- Squelettes affichés pendant le chargement -->
+        <li class="card card--skeleton" aria-hidden="true"></li>
+        <li class="card card--skeleton" aria-hidden="true"></li>
+        <li class="card card--skeleton" aria-hidden="true"></li>
+      </ul>
+    </section>
+
+    <!-- Approche -->
+    <section class="approach" id="approche" aria-labelledby="approachTitle">
+      <div class="section-head">
+        <h2 id="approachTitle">Méthode</h2>
+      </div>
+      <ol class="steps">
+        <li>
+          <h3>Relevé et programme</h3>
+          <p>Visite, relevés, usages, budget. Nous racontons votre histoire avant de dessiner, pour valoriser vos idées plutôt que les nôtres.</p>
+        </li>
+        <li>
+          <h3>Conception</h3>
+          <p>Volumes, couleurs et matériaux choisis ensemble, dans le respect de l'esprit des lieux. Plans, planches matières et vues 3D à chaque étape.</p>
+        </li>
+        <li>
+          <h3>Suivi de chantier</h3>
+          <p>Suivi hebdomadaire, respect du planning et du budget. Si le projet le demande, une équipe se constitue : architecte DPLG, décoratrice, artisans.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- L'atelier -->
+    <section class="studio" id="atelier" aria-labelledby="studioTitle">
+      <figure class="studio__media">
+        <img src="./assets/images/sophie-bluel.png" alt="Portrait de la fondatrice de l'atelier" width="948" height="710" loading="lazy">
+      </figure>
+      <div class="studio__text">
+        <h2 id="studioTitle">L'atelier</h2>
+        <p>Atelier Chaux est un studio d'architecture intérieure fondé à Paris. Nous travaillons pour des particuliers comme pour des établissements recevant du public, avec la même exigence : des espaces calmes, durables, faciles à vivre.</p>
+              </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="contact" id="contact" aria-labelledby="contactTitle">
+      <div class="contact__intro">
+        <h2 id="contactTitle">Contact</h2>
+        <p>Décrivez-le en quelques lignes : le lieu, la surface, le calendrier. Nous répondons sous 48&nbsp;heures ouvrées.</p>
+        <ul class="contact__details">
+          <li><span>Écrire</span> <b>bonjour@atelier-chaux.fr</b></li>
+          <li><span>Atelier</span> <b>Paris 11<sup>e</sup>, sur rendez-vous</b></li>
+        </ul>
+      </div>
+      <form class="contact__form" id="contactForm" novalidate>
+        <div class="field">
+          <label for="name">Nom</label>
+          <input type="text" name="name" id="name" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input type="email" name="email" id="email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="projectType">Type de projet</label>
+          <select name="projectType" id="projectType">
+            <option>Appartement ou maison</option>
+            <option>Hôtel ou restaurant</option>
+            <option>Objet ou mobilier</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="field field--full">
+          <label for="message">Message</label>
+          <textarea name="message" id="message" rows="6" required></textarea>
+        </div>
+        <p class="form-msg" id="contactMsg" role="status" aria-live="polite"></p>
+        <button type="submit" class="btn btn--dark">Envoyer la demande</button>
       </form>
     </section>
   </main>
 
-  <footer>
-    <nav>
-      <ul>
-        <li><a href="#">Mentions Légales</a></li>
-      </ul>
-    </nav>
+  <footer class="site-footer">
+    <p class="site-footer__brand">Atelier Chaux</p>
+    <p>Projet conçu et développé par <a href="https://diurnstudio.fr">Diurn</a>, à partir d'un brief de formation. Projets et visuels fictifs.</p>
+    <a href="./login/login.html">Espace atelier</a>
+    <a href="#top">Haut de page ↑</a>
   </footer>
 
-  <!-- Retour en haut de page -->
-  <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
-
-  <!-- Modale -->
-  <div class="modal" id="modal">
-    <div class="modal__overlay"></div>
-    <div class="modal__container">
-
-      <!-- Bouton de fermeture -->
-      <button class="modal__close" id="modalClose">✕</button>
-
-      <!-- Vue 1 — Galerie -->
-      <div class="modal__gallery" id="modalGallery">
-        <h3>Galerie photo</h3>
-        <p class="modal__error" id="modalError"></p>
-        <div class="modal__grid" id="modalGrid"></div>
-        <hr class="modal__separator">
-        <button class="modal__add-btn" id="modalAddBtn">Ajouter une photo</button>
-        <p class="modal__success" id="modalSuccess"></p>
-      </div>
-
- <div class="modal__form" id="modalForm">
-  <button class="modal__back" id="modalBack"><img src="./assets/icons/arrow-left.svg" alt="retour"></button>
-  <h3>Ajout photo</h3>
-
-  <form id="addWorkForm">
-    <!-- Zone de téléversement -->
-    <div class="modal__upload" id="modalUpload">
-  <input type="file" id="fileInput" accept="image/*">
-  <img src="./assets/icons/pictures.svg" alt="image">
-  <label for="fileInput" class="upload__btn">+ Ajouter photo</label>
-  <small>jpg, png : 4mo max</small>
-</div>
-
-    <!-- Titre -->
-    <label for="workTitle">Titre</label>
-    <input type="text" id="workTitle" placeholder="Titre" required>
-
-    <!-- Catégorie -->
-    <label for="workCategory">Catégorie</label>
-    <select id="workCategory" required>
-      <option value=""></option>
-    </select>
-
-    <!-- Message d'erreur -->
-    <p class="form-error" id="formError"></p>
-
-    <!-- Message de succès -->
-    <p class="modal__success" id="formSuccess"></p>
-
-    <!-- Séparateur -->
-    <hr class="modal__separator">
-
-    <!-- Bouton valider -->
-    <button type="submit" id="submitBtn">Valider</button>
-  </form>
-</div>
-
-      <!-- Confirmation de suppression -->
-      <div class="modal__confirm" id="modalConfirm">
-        <img class="modal__confirm-image" id="confirmImage" alt="">
-        <p>Supprimer ce projet ?</p>
-        <p class="modal__confirm-title" id="confirmTitle"></p>
-        <div class="modal__confirm-actions">
-          <button type="button" class="modal__confirm-cancel" id="confirmCancel">Annuler</button>
-          <button type="button" class="modal__confirm-delete" id="confirmDelete">Supprimer</button>
+  <!-- Fiche projet -->
+  <dialog class="viewer" id="viewer" aria-labelledby="viewerTitle">
+    <button type="button" class="icon-btn viewer__close" data-close aria-label="Fermer">✕</button>
+    <div class="viewer__layout">
+      <img class="viewer__img" id="viewerImg" alt="">
+      <div class="viewer__info">
+        <p class="eyebrow" id="viewerCat"></p>
+        <h2 id="viewerTitle"></h2>
+        <p class="viewer__place" id="viewerPlace"></p>
+        <p class="viewer__count" id="viewerCount"></p>
+        <div class="viewer__nav">
+          <button type="button" class="btn btn--line" id="viewerPrev">← Précédent</button>
+          <button type="button" class="btn btn--line" id="viewerNext">Suivant →</button>
         </div>
       </div>
-
     </div>
-  </div>
+  </dialog>
+
+  <!-- Gestion des projets (administration) -->
+  <dialog class="manager" id="manager" aria-labelledby="managerTitle">
+    <header class="manager__head">
+      <button type="button" class="icon-btn" id="managerBack" aria-label="Retour à la liste" hidden>←</button>
+      <h2 id="managerTitle">Projets publiés</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Fermer">✕</button>
+    </header>
+
+    <!-- Vue liste -->
+    <div class="manager__view" id="managerList">
+      <p class="manager__hint">Survolez une vignette puis cliquez sur la corbeille pour retirer un projet du site.</p>
+      <ul class="manager__grid" id="managerGrid"></ul>
+      <p class="form-msg" id="managerMsg" role="status" aria-live="polite"></p>
+      <button type="button" class="btn btn--dark btn--block" id="managerAdd">Ajouter un projet</button>
+    </div>
+
+    <!-- Vue ajout -->
+    <form class="manager__view" id="addWorkForm" hidden novalidate>
+      <label class="dropzone" id="dropzone" for="fileInput">
+        <input type="file" id="fileInput" accept="image/png, image/jpeg">
+        <img class="dropzone__preview" id="dropzonePreview" alt="" hidden>
+        <span class="dropzone__empty" id="dropzoneEmpty">
+          <img src="./assets/icons/pictures.svg" alt="" width="56" height="56">
+          <strong>Déposez une image ici</strong>
+          <span>ou cliquez pour parcourir · JPG ou PNG, 4&nbsp;Mo max</span>
+        </span>
+      </label>
+      <div class="field">
+        <label for="workTitle">Titre du projet</label>
+        <input type="text" id="workTitle" placeholder="Ex. Appartement Paris XI" required>
+      </div>
+      <div class="field">
+        <label for="workCategory">Type</label>
+        <select id="workCategory" required>
+          <option value="">Choisir un type</option>
+        </select>
+      </div>
+      <p class="form-msg" id="formMsg" role="status" aria-live="polite"></p>
+      <button type="submit" class="btn btn--dark btn--block" id="submitBtn" disabled>Publier le projet</button>
+    </form>
+
+    <!-- Confirmation de suppression -->
+    <div class="manager__view manager__confirm" id="managerConfirm" hidden>
+      <img id="confirmImage" alt="">
+      <p>Retirer <strong id="confirmTitle"></strong> du site&nbsp;?</p>
+      <p class="manager__hint">Le projet disparaîtra de la galerie publique.</p>
+      <div class="manager__confirm-actions">
+        <button type="button" class="btn btn--line" id="confirmCancel">Annuler</button>
+        <button type="button" class="btn btn--danger" id="confirmDelete">Retirer</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="./demo/demo-api.js"></script>
   <script src="./index/index.js"></script>
-
 </body>
 </html>
